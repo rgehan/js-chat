@@ -1,0 +1,25 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Chat-js</title>
+	<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+	<div id="app">
+		<h1>Chat</h1>
+		<div class="chat-container">
+			<div class="chat-body">
+				<ul>
+					<li v-for="msg in messages">{{msg.message}}<br/><small>{{msg.uid}}</small></li>
+				</ul>
+			</div>
+			<div class="chat-controls">
+				<input type="text">
+				<input type="submit" value="Ok">
+			</div>
+		</div>
+	</div>
+	<script src="js/vue.js"></script>
+	<script src="js/app.js"></script>
+</body>
+</html>
