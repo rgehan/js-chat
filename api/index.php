@@ -16,6 +16,8 @@ $dotenv->load();
 //Creation de la db
 $pdo = new PDO("mysql:host=" . getenv('DB_HOST') . ";dbname=" . getenv('DB_NAME'), getenv('DB_USER'), getenv('DB_PASS'));
 
+header("Access-Control-Allow-Origin: *");
+
 $app->get('/messages', function() use ($pdo) {
 	$query = $pdo->query("SELECT * FROM messages");
 	$data = $query->fetchAll(PDO::FETCH_ASSOC);
