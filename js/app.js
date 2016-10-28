@@ -17,7 +17,23 @@ var MessageAPI = {
 			.catch(function(err) {
 				error(err);
 			});
-	}
+	},
+	send: function(message, pseudo, success, error) {
+		var options = {
+			method: 'POST',
+			mode: 'cors',
+			headers: new Headers({ 'Content-Type': 'application/x-www-form-urlencoded' }),
+			body: 'message=' + encodeURI(message) + '&uid=' + encodeURI(pseudo),
+		};
+
+		fetch('http://api.chat-js.local:8888/messages', options)
+			.then(function(response) {
+				return success(response);
+			})
+			.catch(function(err) {
+				return error(err);
+			});
+	},
 };
 
 /*
@@ -27,6 +43,9 @@ var app = new Vue({
 	el: '#app',
 	data: {
 		messages: [],
+		messageInput: '',
+		paramsVisible: false,
+		pseudo: "Guest",
 	},
 	watch: {
 
@@ -35,13 +54,31 @@ var app = new Vue({
 
 	},
 	methods: {
+		sendMessage: function() {
+			MessageAPI.send(this.messageInput, this.pseudo, function(response) {
+				refreshApp();
+			}, function(error) {
+				console.error(error);
+			});
 
+			this.messageInput = '';
+		},
+		toggleParams: function() {
+			this.paramsVisible = !this.paramsVisible;
+		},
+		messageClass: function(message) {
+			return message.uid == this.pseudo ? 'yourMessages' : 'theirMessages';
+		}
 	}
 });
 
-//Pré-charge les messages
-MessageAPI.loadAll(function(data) {
-	app.messages = data;
-}, function(err) {
-	console.error(err);
-});
+function refreshApp() {
+	MessageAPI.loadAll(function(data) {
+		app.messages = data;
+	}, function(err) {
+		console.error(err);
+	});
+}
+
+//Précharge les données
+refreshApp();
