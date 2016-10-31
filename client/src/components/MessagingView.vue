@@ -12,7 +12,7 @@
 
   .chat-container
     .chat-body
-      message(v-for='msg in messages' v-bind:msg='msg' v-bind:class="{'own-message': msg.uid == 1}")
+      message(v-for='msg in messages' v-bind:msg='msg' v-bind:class="{'own-message': msg.uid == uid}")
     .chat-controls
       input(type='text' placeholder='Type a message...' @keyup.enter='sendMessage' v-model='messageInput')
 </template>

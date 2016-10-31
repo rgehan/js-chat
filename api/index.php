@@ -21,7 +21,7 @@ header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Ac
 header("Access-Control-Allow-Methods: DELETE, GET, HEAD, POST, PUT, OPTIONS, TRACE");
 
 $app->get('/messages', function() use ($pdo) {
-	$query = $pdo->query("SELECT m.uid, m.message, u.pseudo FROM messages m INNER JOIN users u ON u.uid = m.uid");
+	$query = $pdo->query("SELECT m.uid, m.message, u.pseudo FROM messages m INNER JOIN users u ON u.uid = m.uid ORDER BY m.id ASC");
 	$data = $query->fetchAll(PDO::FETCH_ASSOC);
 
 	return json_encode($data);

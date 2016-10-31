@@ -2,7 +2,7 @@
   .message
     span.message-text {{msg.message}}
     br
-    span.message-author {{msg.uid}}
+    span.message-author {{msg.pseudo}}
 </template>
 
 <script>
