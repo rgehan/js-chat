@@ -1,8 +1,35 @@
 // store/index.js
 
-export default {
+const store = Object.create(null)
+export default store;
 
-	loadAll: function(success, error) {
+/**
+ * Fetch the given list of items.
+ *
+ * @param {Array<Number>} ids
+ * @return {Promise}
+ */
+
+store.loadAll = () => {
+	return new Promise((resolve, reject) => {
+		var options = {
+			method: 'GET',
+			mode: 'cors',
+		};
+
+		fetch('http://api.chat-js.local:8888/messages', options)
+			.then(function(response) {
+				response.json().then(function(messages) {
+					resolve(messages);
+				});
+			})
+			.catch(function(err) {
+				reject(err);
+			});
+	});
+}
+
+/*	loadAll: function(success, error) {
 		var options = {
 			method: 'GET',
 			mode: 'cors',
@@ -35,4 +62,4 @@ export default {
 				return error(err);
 			});
 	},
-};
+};*/

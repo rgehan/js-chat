@@ -4,6 +4,7 @@
     span.chat-title Chat
     a(@click='toggleParams')
       i.fa.fa-gear.icon-gear-params
+    a(@click='update') Refresh
 
   div.chat-parameters(v-if='paramsVisible')
     input(type='text' v-model='pseudo' placeholder='Pseudo')
@@ -26,17 +27,25 @@ var app = {
   name: 'MessageView',
   data: function(){
     return {
-      messages: [{message: 'Test', uid:1}, {message: 'Tamere', uid:2}],
+      messages: [],
       messageInput: '',
       paramsVisible: false,
       pseudo: "Guest",
       uid: 1,
     }
   },
+  created(){
+    this.update()
+  },
   components:{
     'message': Message,
   },
   methods: {
+    update(){
+      MessageStore.loadAll().then(messages => {
+        this.messages = messages;
+      });
+    },
     sendMessage: function() {
       MessageStore.send(this.messageInput, this.pseudo, function(response) {
         refreshApp();
@@ -51,19 +60,6 @@ var app = {
     }
   }
 };
-
-function refreshApp() {
-  MessageStore.loadAll(function(data) {
-    app.messages = data;
-    console.log("Messages ok");
-    console.log(data);
-  }, function(err) {
-    console.error(err);
-  });
-}
-
-//Précharge les données
-refreshApp();
 
 export default app;
 
