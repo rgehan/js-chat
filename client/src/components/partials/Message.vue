@@ -23,7 +23,7 @@ export default {
 		border-radius 10px
 		padding 4px 8px
 	
-	.author-text
+	.message-author
 		font-size 0.75em
 		margin-top 0px
 		
@@ -31,7 +31,7 @@ export default {
 		text-align left
 		.message-text
 			background #DFDFDF
-		.author
+		.message-author
 			margin-left 5px
 			margin-right 5px
 			

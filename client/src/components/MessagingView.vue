@@ -4,14 +4,14 @@
     span.chat-title Chat
     a(@click='toggleParams')
       i.fa.fa-gear.icon-gear-params
-    a(@click='update') Refresh
+    //a(@click='update') Refresh
 
   div.chat-parameters(v-if='paramsVisible')
     input(type='text' v-model='pseudo' placeholder='Pseudo')
     input(type='text' v-model='uid')
 
   .chat-container
-    .chat-body
+    .chat-body(id="chat-body")
       message(v-for='msg in messages' v-bind:msg='msg' v-bind:class="{'own-message': msg.uid == uid}")
     .chat-controls
       input(type='text' placeholder='Type a message...' @keyup.enter='sendMessage' v-model='messageInput')
@@ -44,12 +44,17 @@ var app = {
     update(){
       MessageStore.loadAll().then(messages => {
         this.messages = messages;
+
+        var elem = document.getElementById("chat-body");
+        elem.scrollTop = elem.scrollHeight;
       });
     },
     sendMessage: function() {
-      MessageStore.send(this.messageInput, this.pseudo, function(response) {
-        refreshApp();
-      }, function(error) {
+      MessageStore.send(this.messageInput, this.uid)
+      .then(response => {
+        this.update();
+      })
+      .catch(error => {
         console.error(error);
       });
 
@@ -64,8 +69,6 @@ var app = {
 export default app;
 
 </script>
-
-
 
 
 <style lang="stylus">
@@ -95,6 +98,7 @@ export default app;
   .chat-headers
     text-align center
     padding 5px 0px
+    border-bottom 1px solid #D1D1D1
   
   .chat-parameters
     padding 5px 0px
@@ -111,22 +115,26 @@ export default app;
     display block
     width 95%
     margin auto
-    padding 4px 9px
+    padding: 8px 6px
     
     border none
-    border-bottom 3px solid #EAEAEA
-
+    border-top 1px solid #D1D1D1
+    
     font-family "Roboto", sans-serif
     font-weight 100
-    font-size 1.3em
+    font-size 1em
 
     transition all ease-in-out .1s
   
-  input[type=text]:focus
-    outline none
-    border-bottom-color #F39BBA
+    &:focus
+      outline none
   
   .chat-container
     padding 0px 7px
+    
+    .chat-body
+      overflow scroll
+      overflow-x hidden
+      height 600px
       
 </style>
