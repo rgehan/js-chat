@@ -1,0 +1,171 @@
+<template lang="jade">
+.message-panel
+  .chat-headers
+    span.chat-title Chat
+    a(@click='toggleParams')
+      i.fa.fa-gear.icon-gear-params
+
+  div.chat-parameters(v-if='paramsVisible')
+    input(type='text' v-model='pseudo' placeholder='Pseudo')
+    input(type='text' v-model='uid')
+
+  .chat-container
+    .chat-body
+      div(v-for='msg in messages' v-bind:class='messageClass(msg)')
+        span.message {{msg.message}}
+        br
+        span.author {{msg.uid}}
+    .chat-controls
+      input(type='text' placeholder='Type a message...' @keyup.enter='sendMessage' v-mode='messageInput')
+</template>
+
+
+<script>
+export default {
+  name: 'app',
+  data () {
+    return {
+      msg: 'Welcome to Your Vue.js App'
+    }
+  }
+}
+</script>
+
+
+<style>
+  body
+  {
+    background: #F1F4F9;
+  }
+
+  #app
+  {
+    width: 60%;
+    min-width: 500px;
+    margin:auto;
+    border: #D1D1D1;
+    background: white;
+
+    color: #463f43;
+
+    font-family: "Roboto", sans-serif;
+    font-weight: 100;
+  }
+
+  li
+  {
+    list-style-type: none;
+  }
+
+  .chat-headers, .chat-parameters, .chat-container
+  {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .chat-headers
+  {
+    text-align: center;
+    padding: 5px 0px;
+  }
+
+  .chat-parameters
+  {
+    padding: 5px 0px;
+  }
+
+  .chat-title
+  {
+    font-size: 2em;
+  }
+
+  .icon-gear-params
+  { 
+    font-size: .5em;
+
+    display:inline-block;
+    margin-left: 10px;
+  }
+
+  input[type=text]
+  {
+    display:block;
+
+    width: 95%;
+    margin: auto;
+    padding: 4px 9px;
+    
+    border: none;
+    border-bottom: 3px solid #EAEAEA;
+
+    font-family: "Roboto", sans-serif;
+    font-weight: 100;
+    font-size: 1.3em;
+
+    transition: all ease-in-out .1s;
+  }
+
+  input[type=text]:focus
+  {
+    outline: none;
+    border-bottom-color: #F39BBA;
+  }
+
+  .chat-container
+  {
+    padding: 0px 7px;
+  }
+
+  .message, .author
+  {
+    display: inline-block;
+  }
+
+  .message
+  {
+    border-radius: 10px;
+    padding: 4px 8px;
+  }
+
+  .author
+  {
+    font-size: 0.75em;
+    margin-top: 0px;
+  }
+
+  .yourMessages
+  {
+    text-align: right;
+  }
+
+  .yourMessages .message
+  {
+    background: #0070FF;
+    color: white;
+  }
+
+  .yourMessages .author
+  {
+    margin-right: 5px;
+  }
+
+  .theirMessages
+  {
+    text-align: left;
+  }
+
+  .theirMessages .message
+  {
+    background: #DFDFDF;
+  }
+
+  .theirMessages .author
+  {
+    margin-left: 5px;
+  }
+
+  .yourMessages, .theirMessages
+  {
+    margin-bottom: 5px;
+  }
+</style>
