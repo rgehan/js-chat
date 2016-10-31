@@ -16,5 +16,5 @@ composer install
 ```
 
 ### Data importation
-Import the message.sql file into your database
+Import the chat-js.sql file into your database
 
