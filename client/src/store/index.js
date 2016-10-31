@@ -3,13 +3,6 @@
 const store = Object.create(null)
 export default store;
 
-/**
- * Fetch the given list of items.
- *
- * @param {Array<Number>} ids
- * @return {Promise}
- */
-
 store.loadAll = () => {
 	return new Promise((resolve, reject) => {
 		var options = {
