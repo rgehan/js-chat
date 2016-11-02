@@ -12,12 +12,16 @@ export default store;
  * @return {Promise}
  */
 
+var authenticatedHeaders = new Headers({
+	'Authorization': 'Basic ' + Configuration.API_BASIC_AUTH_STR(),
+});
+
 store.loadAll = () => {
 	return new Promise((resolve, reject) => {
 		var options = {
 			method: 'GET',
 			mode: 'cors',
-			headers: new Headers({ 'Authorization': Configuration.API_BASIC_AUTH_STR() }),
+			headers: authenticatedHeaders,
 		};
 
 		fetch('http://api.chat-js.local:8888/messages', options)
@@ -37,9 +41,11 @@ store.send = (message, uid, success, error) => {
 		var options = {
 			method: 'POST',
 			mode: 'cors',
-			headers: new Headers({ 'Content-Type': 'application/x-www-form-urlencoded' }),
-			body: 'message=' + encodeURI(message) + '&uid=' + encodeURI(uid),
+			headers: authenticatedHeaders,
+			body: 'message=' + encodeURI(message),
 		};
+
+		options.headers.append('Content-Type', 'application/x-www-form-urlencoded');
 
 		fetch('http://api.chat-js.local:8888/messages', options)
 			.then(function(response) {

@@ -2,17 +2,10 @@
 .message-panel
   .chat-headers
     span.chat-title Chat
-    a(@click='toggleParams')
-      i.fa.fa-gear.icon-gear-params
-    //a(@click='update') Refresh
-
-  div.chat-parameters(v-if='paramsVisible')
-    input(type='text' v-model='pseudo' placeholder='Pseudo')
-    input(type='text' v-model='uid')
 
   .chat-container
     .chat-body(id="chat-body")
-      message(v-for='msg in messages' v-bind:msg='msg' v-bind:class="{'own-message': msg.uid == uid}")
+      message(v-for='msg in messages' v-bind:msg='msg')
     .chat-controls
       input(type='text' placeholder='Type a message...' @keyup.enter='sendMessage' v-model='messageInput')
 </template>
@@ -29,9 +22,6 @@ var app = {
     return {
       messages: [],
       messageInput: '',
-      paramsVisible: false,
-      pseudo: "Guest",
-      uid: 1,
     }
   },
   created(){
@@ -65,9 +55,6 @@ var app = {
       console.log("Scrolling down");
       var elem = document.getElementById("chat-body");
       elem.scrollTop = elem.scrollHeight;
-    },
-    toggleParams: function() {
-      this.paramsVisible = !this.paramsVisible;
     }
   }
 };
@@ -97,25 +84,17 @@ export default app;
   li
     list-style-type none
   
-  .chat-headers, .chat-parameters, .chat-container
+  .chat-headers, .chat-container
     width 100%
+    padding 5px 0px
     box-sizing border-box
   
   .chat-headers
     text-align center
-    padding 5px 0px
     border-bottom 1px solid #D1D1D1
-  
-  .chat-parameters
-    padding 5px 0px
   
   .chat-title
     font-size 2em
-  
-  .icon-gear-params
-    font-size .5em
-    display inline-block
-    margin-left 10px
   
   input[type=text]
     display block
