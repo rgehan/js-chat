@@ -42,11 +42,12 @@ var app = {
   },
   methods: {
     update(){
-      MessageStore.loadAll().then(messages => {
+      MessageStore.loadAll()
+      .then(messages => {
         this.messages = messages;
-
-        var elem = document.getElementById("chat-body");
-        elem.scrollTop = elem.scrollHeight;
+      })
+      .then(() => {
+        this.scrollDown();
       });
     },
     sendMessage: function() {
@@ -59,6 +60,11 @@ var app = {
       });
 
       this.messageInput = '';
+    },
+    scrollDown: () => {
+      console.log("Scrolling down");
+      var elem = document.getElementById("chat-body");
+      elem.scrollTop = elem.scrollHeight;
     },
     toggleParams: function() {
       this.paramsVisible = !this.paramsVisible;
