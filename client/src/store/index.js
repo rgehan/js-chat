@@ -1,5 +1,7 @@
 // store/index.js
 
+import Configuration from './conf.js'
+
 const store = Object.create(null)
 export default store;
 
@@ -15,6 +17,7 @@ store.loadAll = () => {
 		var options = {
 			method: 'GET',
 			mode: 'cors',
+			headers: new Headers({ 'Authorization': Configuration.API_BASIC_AUTH_STR() }),
 		};
 
 		fetch('http://api.chat-js.local:8888/messages', options)
