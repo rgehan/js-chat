@@ -14,7 +14,7 @@ $dotenv->load();
 $pdo = new PDO("mysql:host=" . getenv('DB_HOST') . ";dbname=" . getenv('DB_NAME'), getenv('DB_USER'), getenv('DB_PASS'));
 
 header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
+header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization");
 header("Access-Control-Allow-Methods: DELETE, GET, HEAD, POST, PUT, OPTIONS, TRACE");
 
 /* 
@@ -23,8 +23,8 @@ header("Access-Control-Allow-Methods: DELETE, GET, HEAD, POST, PUT, OPTIONS, TRA
 $app = new Application();
 $app['debug'] = true;
 
-//Middleware d'authentification
-$app->before(function(Request $request, Application $app) use ($pdo){
+//Fonction middleware d'authentification
+$authFunction = function(Request $request, Application $app) use ($pdo){
 	$user = $request->server->get('PHP_AUTH_USER');
 	$pw = $request->server->get('PHP_AUTH_PW');
 
@@ -36,7 +36,7 @@ $app->before(function(Request $request, Application $app) use ($pdo){
 	//Si on a pas de salt
 	if(!$data)
 	{
-		return new Response("Unauthorized", 401);
+		return new Response("Unauthorized (no such account ".$user.")", 401);
 	}
 	else
 	{
@@ -53,12 +53,11 @@ $app->before(function(Request $request, Application $app) use ($pdo){
 		//Si on a pas d'utilisateur qui match, on ne poursuit pas...
 		if($count != 1)
 		{
-			return new Response("Unauthorized", 401);
+			return new Response("Unauthorized (bad password)", 401);
 		}
 
 	}
-});
-
+};
 
 //Recuperation des messages
 $app->get('/messages', function() use ($pdo) {
@@ -66,24 +65,32 @@ $app->get('/messages', function() use ($pdo) {
 	$data = $query->fetchAll(PDO::FETCH_ASSOC);
 
 	return json_encode($data);
-});
+})
+->before($authFunction);
 
 //Ajout d'un message
 $app->post('/messages', function(Request $request) use ($pdo) {
 	$message = $request->get('message');
-	$uid = $request->get('uid');
 
-	if($message == NULL || $uid == NULL)
-		return new Response('Bad parameters ('.$message.';'.$uid.')', 500);
+	if($message == NULL)
+		return new Response('Bad parameters', 500);
 
+	//L'utilisateur est forcément logué, on recupere son uid
+	$user = $request->server->get('PHP_AUTH_USER');
+	$uidQuery = $pdo->prepare("SELECT uid FROM users WHERE pseudo = :pseudo");
+	$uidQuery->execute(['pseudo' => $user]);
+	$uid = $uidQuery->fetch(PDO::FETCH_ASSOC)['uid'];
+
+	//insertion du message
 	$query = $pdo->prepare("INSERT INTO messages (id, uid, message) VALUES (NULL, :uid, :msg);");
 	$ret = $query->execute(['uid' => $uid, 'msg' => $message]);
 
 	if($ret)
 		return new Response('Message posted.', 201);
 	else
-		return new Response('Message couldn\'t be posted', 500);
-});
+		return new Response('Message couldn\'t be posted (uid='.$uid.')', 500);
+})
+->before($authFunction);
 
 
 //Ajout d'un utilisateur
@@ -104,7 +111,8 @@ $app->post('/utilisateurs', function(Request $request) use ($pdo) {
 		return new Response('User added.', 201);
 	else
 		return new Response('User couldn\'t be added', 500);
-});
+})
+->before($authFunction);
 
 //Censé authoriser les requetes OPTIONS
 $app->match("{url}", function($url) use ($app){
