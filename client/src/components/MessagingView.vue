@@ -1,11 +1,11 @@
 <template lang="jade">
 .message-panel
-  .chat-headers
+  .chat-headers(@click='update')
     span.chat-title Chat
 
   .chat-container
     .chat-body(id="chat-body")
-      message(v-for='msg in messages' v-bind:msg='msg')
+      message(v-for='msg in messages' v-bind:msg='msg' v-bind:class="{'own-message': isThisMessageMine(msg)}")
     .chat-controls
       input(type='text' placeholder='Type a message...' @keyup.enter='sendMessage' v-model='messageInput')
 </template>
@@ -35,8 +35,6 @@ var app = {
     if(!auth.isAuthenticated)
       next('/login');
     
-    console.log(auth);
-
     next();
   },
   methods: {
@@ -61,12 +59,11 @@ var app = {
       this.messageInput = '';
     },
     scrollDown: () => {
-      console.log("Scrolling down");
       var elem = document.getElementById("chat-body");
       elem.scrollTop = elem.scrollHeight;
     },
     isThisMessageMine: msg => {
-      return msg.uid == auth.getUid();
+      return msg.pseudo === auth.user;
     }
   }
 };
@@ -76,7 +73,7 @@ export default app;
 </script>
 
 
-<style lang="stylus" scoped>
+<style lang="stylus">
 
   body
     background #F1F4F9

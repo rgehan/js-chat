@@ -14,7 +14,7 @@ export default store;
 
 store.getAuthHeaders = () => {
 	return new Headers({
-		'Authorization': 'Basic ' + auth.authString(),
+		'x-auth-token': auth.authTokenString(),
 	});
 };
 

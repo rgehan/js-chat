@@ -3,10 +3,17 @@ class Auth {
 		this.isAuthenticated = false;
 		this.user = '';
 		this.uid = '';
+		this.token = '';
 	}
 
-	authString() {
-		return btoa(this.user + ':' + this.pass); //Base64 Encode
+	authTokenString() {
+		return 'Token ' + this.token;
+	}
+
+	getAuthHeaders() {
+		return new Headers({
+			'x-auth-token': this.authTokenString(),
+		});
 	}
 
 	login(user, pass) {
@@ -28,14 +35,29 @@ class Auth {
 						.then(function(data) {
 							//Si le login a fonctionné
 							if (data.status === 'login_ok') {
-								that.user = user;
-								that.uid = data.uid;
+								that.token = data.token;
 								that.isAuthenticated = true;
 
-								resolve(true);
-							}
+								let options2 = {
+									method: 'GET',
+									mode: 'cors',
+									headers: that.getAuthHeaders(),
+								};
 
-							resolve(false);
+								//On recupere des infos sur l'user
+								fetch('http://api.chat-js.local:8888/userinfo', options2)
+									.then(response => response.json())
+									.then(data => {
+										that.uid = data.uid;
+										that.user = data.pseudo;
+
+										resolve(true);
+									})
+									.catch(err => {
+										console.error(err);
+										reject(err);
+									});
+							}
 						})
 						.catch(function(err) {
 							reject(err);

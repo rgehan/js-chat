@@ -12,7 +12,7 @@
         button.ui.button(@click="doLogin") Login
 </template>
 
-<style lang="stylus" scoped>
+<style lang="stylus">
 </style>
 
 <script>
@@ -27,8 +27,8 @@ var app = {
   name: 'LoginView',
   data: function(){
     return {
-      user: '',
-      pass: ''
+      user: 'user',
+      pass: 'password'
     }
   },
   components:{
