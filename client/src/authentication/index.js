@@ -6,7 +6,6 @@ class Auth {
 	}
 
 	authString() {
-		console.log("Building auth string: " + this.user + ', ' + this.pass);
 		return btoa(this.user + ':' + this.pass); //Base64 Encode
 	}
 

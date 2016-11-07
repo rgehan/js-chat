@@ -5,5 +5,5 @@
   "indent": 2,
   "latedef": false,
   "newcap": true,
-  "quotmark": "double"
+  "quotmark": "single"
 }

@@ -64,6 +64,9 @@ var app = {
       console.log("Scrolling down");
       var elem = document.getElementById("chat-body");
       elem.scrollTop = elem.scrollHeight;
+    },
+    isThisMessageMine: msg => {
+      return msg.uid == auth.getUid();
     }
   }
 };
@@ -73,7 +76,7 @@ export default app;
 </script>
 
 
-<style lang="stylus">
+<style lang="stylus" scoped>
 
   body
     background #F1F4F9

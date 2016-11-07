@@ -8,6 +8,7 @@ module.exports = {
     publicPath: '/dist/',
     filename: 'build.js'
   },
+
   module: {
     rules: [{
       test: /\.vue$/,
@@ -24,7 +25,11 @@ module.exports = {
       loader: 'file',
       options: {
         name: '[name].[ext]?[hash]'
-      }
+      },
+    }, {
+      test: /\.js$/,
+      exclude: /node_modules/,
+      loader: 'jshint-loader',
     }]
   },
   resolve: {
@@ -37,12 +42,6 @@ module.exports = {
     noInfo: true
   },
   devtool: '#eval-source-map',
-  preLoaders: [{
-    test: /\.jsx?$/,
-    loaders: ['jshint'],
-    // define an include so we check just the files we need
-    include: path.resolve(__dirname, './src')
-  }]
 }
 
 if (process.env.NODE_ENV === 'production') {

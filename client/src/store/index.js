@@ -1,8 +1,8 @@
 // store/index.js
 
-import { auth } from '../authentication'
+import { auth } from '../authentication';
 
-const store = Object.create(null)
+const store = Object.create(null);
 export default store;
 
 /**
@@ -16,7 +16,7 @@ store.getAuthHeaders = () => {
 	return new Headers({
 		'Authorization': 'Basic ' + auth.authString(),
 	});
-}
+};
 
 store.loadAll = () => {
 	return new Promise((resolve, reject) => {
@@ -36,7 +36,7 @@ store.loadAll = () => {
 				reject(err);
 			});
 	});
-}
+};
 
 store.send = (message, uid, success, error) => {
 	return new Promise((resolve, reject) => {
@@ -57,4 +57,4 @@ store.send = (message, uid, success, error) => {
 				reject(err);
 			});
 	});
-}
+};

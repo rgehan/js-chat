@@ -1,13 +1,26 @@
-<template>
-  <div>
- 	<h1>Login view</h1>
- 	<input v-model="user"><br/>
- 	<input v-model="pass"><br/>
- 	<button @click="doLogin">Login</button>
-  </div>
+<template lang="jade">
+  .ui.centered.grid
+    .ui.eight.wide.column
+      h2.ui.header Login view
+      .ui.form
+        .field
+          label Username:
+          input(v-model="user" placeholder="Username")
+        .field
+          label Password:
+          input(v-model="pass" placeholder="Password")
+        button.ui.button(@click="doLogin") Login
 </template>
 
+<style lang="stylus" scoped>
+</style>
+
 <script>
+
+/*
+ 
+ */
+
 import {auth} from '../authentication';
 
 var app = {
@@ -30,5 +43,4 @@ var app = {
 };
 
 export default app;
-
 </script>

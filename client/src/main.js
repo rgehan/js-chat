@@ -1,12 +1,12 @@
 // main.js
 
-import Vue from 'vue'
-import VueRouter from 'vue-router'
-import LoginView from './components/LoginView.vue'
-import MessagingView from './components/MessagingView.vue'
+import Vue from 'vue';
+import VueRouter from 'vue-router';
+import LoginView from './components/LoginView.vue';
+import MessagingView from './components/MessagingView.vue';
 
 // install router
-Vue.use(VueRouter)
+Vue.use(VueRouter);
 
 // routing
 const routes = [
@@ -20,4 +20,4 @@ var router = new VueRouter({
 
 const app = new Vue({
 	router
-}).$mount('#app')
+}).$mount('#app');
