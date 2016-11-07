@@ -23,26 +23,22 @@ header("Access-Control-Allow-Methods: DELETE, GET, HEAD, POST, PUT, OPTIONS, TRA
 $app = new Application();
 $app['debug'] = true;
 
-//Fonction middleware d'authentification
-$authFunction = function(Request $request, Application $app) use ($pdo){
-	$user = $request->server->get('PHP_AUTH_USER');
-	$pw = $request->server->get('PHP_AUTH_PW');
+//Fonction checkant la validité d'un mot de passe utilisateur
+function checkUserSuppliedCredentials($user, $pass) 
+{
+	$pdo = $GLOBALS['pdo'];
 
 	//On recupere le salt correspondant à l'utilisateur
 	$saltRequest = $pdo->prepare("SELECT salt FROM users WHERE pseudo = :pseudo");
 	$saltRequest->execute(['pseudo' => $user]);
 	$data = $saltRequest->fetch(PDO::FETCH_ASSOC);
 
-	//Si on a pas de salt
-	if(!$data)
-	{
-		return new Response("Unauthorized (no such account ".$user.")", 401);
-	}
-	else
+	//Si on a un salt (et donc un user)
+	if($data)
 	{
 		//On hash le password donné avec ce salt
 		$salt = $data['salt'];
-		$hash = hash('sha256', $salt . $pw);
+		$hash = hash('sha256', $salt . $pass);
 
 		//Et on le compare a celui existant en db
 		$passRequest = $pdo->prepare("SELECT COUNT(*) FROM users WHERE pseudo = :pseudo AND password = :hash");
@@ -51,11 +47,23 @@ $authFunction = function(Request $request, Application $app) use ($pdo){
 		$count = $passRequest->fetch()[0];
 
 		//Si on a pas d'utilisateur qui match, on ne poursuit pas...
-		if($count != 1)
+		if($count == 1)
 		{
-			return new Response("Unauthorized (bad password)", 401);
+			return true;
 		}
+	}
 
+	return false;
+}
+
+//Fonction middleware d'authentification
+$authFunction = function(Request $request, Application $app) use ($pdo){
+	$user = $request->server->get('PHP_AUTH_USER');
+	$pw = $request->server->get('PHP_AUTH_PW');
+
+	if(!checkUserSuppliedCredentials($user, $pw))
+	{
+		return new Response("Unauthorized", 401);
 	}
 };
 
@@ -94,7 +102,7 @@ $app->post('/messages', function(Request $request) use ($pdo) {
 
 
 //Ajout d'un utilisateur
-$app->post('/utilisateurs', function(Request $request) use ($pdo) {
+$app->post('/utilisateurs', function(Request $request) use ($pdo){
 	$user = $request->get('user');
 	$pw = $request->get('pw');
 
@@ -111,8 +119,29 @@ $app->post('/utilisateurs', function(Request $request) use ($pdo) {
 		return new Response('User added.', 201);
 	else
 		return new Response('User couldn\'t be added', 500);
+})
+->before($authFunction);
+
+//Login
+$app->post('/login', function(Request $request) use ($pdo){
+	$user = $request->get('user');
+	$pw = $request->get('pw');
+
+	if(checkUserSuppliedCredentials($user, $pw))
+	{
+		$query = $pdo->prepare("SELECT uid FROM users WHERE pseudo = ?");
+		$query->execute([$user]);
+
+		$row = $query->fetch(PDO::FETCH_ASSOC);
+
+		if(!$row)
+			return json_encode([]);
+		else
+			return json_encode(['uid' => $row['uid']]);
+	}
+
+	return json_encode([]);
 });
-//->before($authFunction);
 
 //Censé authoriser les requetes OPTIONS
 $app->match("{url}", function($url) use ($app){
