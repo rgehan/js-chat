@@ -1,6 +1,7 @@
 <?php
 
 require_once("./vendor/autoload.php");
+require_once("Auth.class.php");
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,49 +24,25 @@ header("Access-Control-Allow-Methods: DELETE, GET, HEAD, POST, PUT, OPTIONS, TRA
 $app = new Application();
 $app['debug'] = true;
 
-//Fonction checkant la validité d'un mot de passe utilisateur
-function checkUserSuppliedCredentials($user, $pass) 
-{
-	$pdo = $GLOBALS['pdo'];
 
-	//On recupere le salt correspondant à l'utilisateur
-	$saltRequest = $pdo->prepare("SELECT salt FROM users WHERE pseudo = :pseudo");
-	$saltRequest->execute(['pseudo' => $user]);
-	$data = $saltRequest->fetch(PDO::FETCH_ASSOC);
+$auth = new Auth($pdo);
 
-	//Si on a un salt (et donc un user)
-	if($data)
-	{
-		//On hash le password donné avec ce salt
-		$salt = $data['salt'];
-		$hash = hash('sha256', $salt . $pass);
 
-		//Et on le compare a celui existant en db
-		$passRequest = $pdo->prepare("SELECT COUNT(*) FROM users WHERE pseudo = :pseudo AND password = :hash");
-		$passRequest->execute(['pseudo' => $user, 'hash' => $hash]);
-	
-		$count = $passRequest->fetch()[0];
+//Middleware d'authentification
+$authFunction = function(Request $request, Application $app) use ($pdo, $auth){
+	$token = $request->cookies->get('auth_token');
 
-		//Si on a pas d'utilisateur qui match, on ne poursuit pas...
-		if($count == 1)
-		{
-			return true;
-		}
-	}
+	$authData = $auth->checkToken($token);
 
-	return false;
-}
-
-//Fonction middleware d'authentification
-$authFunction = function(Request $request, Application $app) use ($pdo){
-	$user = $request->server->get('PHP_AUTH_USER');
-	$pw = $request->server->get('PHP_AUTH_PW');
-
-	if(!checkUserSuppliedCredentials($user, $pw))
-	{
+	//Invalid token
+	if(!$authData)
 		return new Response("Unauthorized", 401);
-	}
+
+	//On passe les infos de l'user au reste des fonctions
+	$request->attributes->set('userData', ['uid' => $authData['uid']]);
 };
+
+
 
 //Recuperation des messages
 $app->get('/messages', function() use ($pdo) {
@@ -76,18 +53,16 @@ $app->get('/messages', function() use ($pdo) {
 })
 ->before($authFunction);
 
+
+
 //Ajout d'un message
-$app->post('/messages', function(Request $request) use ($pdo) {
+$app->post('/messages', function(Request $request) use ($pdo, $auth) {
 	$message = $request->get('message');
 
 	if($message == NULL)
 		return new Response('Bad parameters', 500);
 
-	//L'utilisateur est forcément logué, on recupere son uid
-	$user = $request->server->get('PHP_AUTH_USER');
-	$uidQuery = $pdo->prepare("SELECT uid FROM users WHERE pseudo = :pseudo");
-	$uidQuery->execute(['pseudo' => $user]);
-	$uid = $uidQuery->fetch(PDO::FETCH_ASSOC)['uid'];
+	$uid = $request->attributes->get('userData')['uid'];
 
 	//insertion du message
 	$query = $pdo->prepare("INSERT INTO messages (id, uid, message) VALUES (NULL, :uid, :msg);");
@@ -102,18 +77,14 @@ $app->post('/messages', function(Request $request) use ($pdo) {
 
 
 //Ajout d'un utilisateur
-$app->post('/utilisateurs', function(Request $request) use ($pdo){
+$app->post('/utilisateurs', function(Request $request) use ($pdo, $auth){
 	$user = $request->get('user');
 	$pw = $request->get('pw');
 
 	if($user == NULL || $pw == NULL)
 		return new Response('Bad parameters', 500);
 
-	$salt = uniqid(mt_rand(), true);
-	$hash = hash('sha256', $salt . $pw);
-
-	$query = $pdo->prepare("INSERT INTO users (uid, pseudo, password, salt) VALUES (NULL, :pseudo, :pass, :salt);");
-	$ret = $query->execute(['pseudo' => $user, 'pass' => $hash, 'salt' => $salt]);
+	$ret = $auth->saveUser($user, $pw);
 
 	if($ret)
 		return new Response('User added.', 201);
@@ -122,26 +93,32 @@ $app->post('/utilisateurs', function(Request $request) use ($pdo){
 })
 ->before($authFunction);
 
+
+
 //Login
-$app->post('/login', function(Request $request) use ($pdo){
+$app->post('/login', function(Request $request) use ($pdo, $auth){
 	$user = $request->get('user');
 	$pw = $request->get('pw');
 
 	if($user == NULL || $pw == NULL)
 		return new Response('Bad parameters ('.$user.';'.$pw.')', 500);
 
-	if(checkUserSuppliedCredentials($user, $pw))
+	if($auth->checkUserSuppliedCredentials($user, $pw))
 	{
-		$query = $pdo->prepare("SELECT uid FROM users WHERE pseudo = ?");
-		$query->execute([$user]);
+		//On genere un token pour l'utilisateur et on lui envoit
+		$token = $auth->generateUserToken($user);
 
-		$row = $query->fetch(PDO::FETCH_ASSOC);
-
-		return json_encode(['status' => 'login_ok', 'uid' => $row['uid']]);
+		if($token)
+			return json_encode(['status' => 'login_ok', 'token' => $token]);
+		else
+			return json_encode(['status' => 'login_fail', 'reason' => 'no token could be generated']);
 	}
 
-	return json_encode(['status' => 'login_fail', 'uid' => NULL, 'details' => $user.':'.$pw]);
+	//On lui indique le login a echoue
+	return json_encode(['status' => 'login_fail', 'reason' => 'invalid credentials']);
 });
+
+
 
 //Censé authoriser les requetes OPTIONS
 $app->match("{url}", function($url) use ($app){
