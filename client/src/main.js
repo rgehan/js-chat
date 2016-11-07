@@ -10,8 +10,8 @@ Vue.use(VueRouter)
 
 // routing
 const routes = [
-	{ path: '/login', component: LoginView },
-	{ path: '/', component: MessagingView }
+	{ path: '/login', name: 'login', component: LoginView },
+	{ path: '/', name: 'home', component: MessagingView }
 ];
 
 var router = new VueRouter({

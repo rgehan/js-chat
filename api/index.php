@@ -111,8 +111,8 @@ $app->post('/utilisateurs', function(Request $request) use ($pdo) {
 		return new Response('User added.', 201);
 	else
 		return new Response('User couldn\'t be added', 500);
-})
-->before($authFunction);
+});
+//->before($authFunction);
 
 //Censé authoriser les requetes OPTIONS
 $app->match("{url}", function($url) use ($app){

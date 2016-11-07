@@ -1,6 +1,6 @@
 // store/index.js
 
-import Configuration from './conf.js'
+import { auth } from '../authentication'
 
 const store = Object.create(null)
 export default store;
@@ -12,16 +12,18 @@ export default store;
  * @return {Promise}
  */
 
-var authenticatedHeaders = new Headers({
-	'Authorization': 'Basic ' + Configuration.API_BASIC_AUTH_STR(),
-});
+store.getAuthHeaders = () => {
+	return new Headers({
+		'Authorization': 'Basic ' + auth.authString(),
+	});
+}
 
 store.loadAll = () => {
 	return new Promise((resolve, reject) => {
-		var options = {
+		let options = {
 			method: 'GET',
 			mode: 'cors',
-			headers: authenticatedHeaders,
+			headers: store.getAuthHeaders(),
 		};
 
 		fetch('http://api.chat-js.local:8888/messages', options)
@@ -38,11 +40,11 @@ store.loadAll = () => {
 
 store.send = (message, uid, success, error) => {
 	return new Promise((resolve, reject) => {
-		var options = {
+		let options = {
 			method: 'POST',
 			mode: 'cors',
-			headers: authenticatedHeaders,
-			body: 'message=' + encodeURI(message),
+			headers: store.getAuthHeaders(),
+			body: `message=${encodeURI(message)}`,
 		};
 
 		options.headers.append('Content-Type', 'application/x-www-form-urlencoded');

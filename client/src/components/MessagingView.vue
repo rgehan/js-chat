@@ -15,6 +15,7 @@
 <script>      
 import MessageStore from '../store';
 import Message from './partials/Message.vue';
+import {auth} from '../authentication';
 
 var app = {
   name: 'MessageView',
@@ -29,6 +30,14 @@ var app = {
   },
   components:{
     'message': Message,
+  },
+  beforeRouteEnter(to, from, next){
+    if(!auth.isAuthenticated)
+      next('/login');
+    
+    console.log(auth);
+
+    next();
   },
   methods: {
     update(){
