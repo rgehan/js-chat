@@ -2,6 +2,8 @@
 
 import Vue from 'vue';
 import VueRouter from 'vue-router';
+
+import App from './components/App.vue';
 import LoginView from './components/LoginView.vue';
 import MessagingView from './components/MessagingView.vue';
 
@@ -10,14 +12,16 @@ Vue.use(VueRouter);
 
 // routing
 const routes = [
-	{ path: '/login', name: 'login', component: LoginView },
-	{ path: '/', name: 'home', component: MessagingView }
+    { path: '/login', name: 'login', component: LoginView },
+    { path: '/', name: 'home', component: MessagingView }
 ];
 
 var router = new VueRouter({
-	routes
+    routes
 });
 
 const app = new Vue({
-	router
-}).$mount('#app');
+    el: '#app',
+    router,
+    render: h => h(App),
+});
