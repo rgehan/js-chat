@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Client :  localhost
--- Généré le :  Lun 31 Octobre 2016 à 17:22
+-- Généré le :  Lun 07 Novembre 2016 à 22:12
 -- Version du serveur :  5.6.28
 -- Version de PHP :  7.0.10
 
@@ -35,12 +35,26 @@ CREATE TABLE `messages` (
 -- --------------------------------------------------------
 
 --
+-- Structure de la table `sessions`
+--
+
+CREATE TABLE `sessions` (
+  `token` varchar(32) NOT NULL,
+  `uid` int(11) NOT NULL,
+  `expiration` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
 -- Structure de la table `users`
 --
 
 CREATE TABLE `users` (
   `uid` int(11) NOT NULL,
-  `pseudo` varchar(50) NOT NULL
+  `pseudo` varchar(50) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `salt` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -55,10 +69,17 @@ ALTER TABLE `messages`
   ADD KEY `uid` (`uid`);
 
 --
+-- Index pour la table `sessions`
+--
+ALTER TABLE `sessions`
+  ADD PRIMARY KEY (`token`);
+
+--
 -- Index pour la table `users`
 --
 ALTER TABLE `users`
-  ADD PRIMARY KEY (`uid`);
+  ADD PRIMARY KEY (`uid`),
+  ADD UNIQUE KEY `pseudo` (`pseudo`);
 
 --
 -- AUTO_INCREMENT pour les tables exportées
@@ -68,12 +89,12 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT pour la table `messages`
 --
 ALTER TABLE `messages`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 --
 -- AUTO_INCREMENT pour la table `users`
 --
 ALTER TABLE `users`
-  MODIFY `uid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `uid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 --
 -- Contraintes pour les tables exportées
 --
