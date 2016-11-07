@@ -136,6 +136,28 @@ $app->get('/userinfo', function(Request $request) use ($pdo){
 ->before($authFunction);
 
 
+//Recupere des infos sur les conversations de l'utilisateur
+$app->get('/conversations', function(Request $request) use ($pdo){
+	$uid = $request->attributes->get('userData')['uid'];
+
+	$query = $pdo->prepare("SELECT a.message AS lastMessage, 
+								   a.conv_id, 
+								   a.date_added as lastDate
+							FROM messages a
+							INNER JOIN (SELECT MAX(id) AS id
+									    FROM messages
+									    GROUP BY conv_id) AS b
+							ON a.id = b.id
+							WHERE a.conv_id IN (SELECT conv_id FROM messages
+												WHERE uid = :uid
+												GROUP BY conv_id)");
+	$query->execute(['uid' => $uid]);
+
+	return new Response(json_encode($query->fetchAll(PDO::FETCH_ASSOC)), 200);
+})
+->before($authFunction);
+
+
 //Censé authoriser les requetes OPTIONS
 $app->match("{url}", function($url) use ($app){
 	return "OK OPTIONS"; 
@@ -144,3 +166,6 @@ $app->match("{url}", function($url) use ($app){
 ->method("OPTIONS");
 
 $app->run();
+
+
+
