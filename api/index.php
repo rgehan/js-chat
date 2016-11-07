@@ -127,6 +127,9 @@ $app->post('/login', function(Request $request) use ($pdo){
 	$user = $request->get('user');
 	$pw = $request->get('pw');
 
+	if($user == NULL || $pw == NULL)
+		return new Response('Bad parameters ('.$user.';'.$pw.')', 500);
+
 	if(checkUserSuppliedCredentials($user, $pw))
 	{
 		$query = $pdo->prepare("SELECT uid FROM users WHERE pseudo = ?");
@@ -134,10 +137,10 @@ $app->post('/login', function(Request $request) use ($pdo){
 
 		$row = $query->fetch(PDO::FETCH_ASSOC);
 
-		return json_encode(['status' => 'ok', 'uid' => $row['uid']]);
+		return json_encode(['status' => 'login_ok', 'uid' => $row['uid']]);
 	}
 
-	return json_encode(['status' => 'login_fail', 'uid' => NULL]);
+	return json_encode(['status' => 'login_fail', 'uid' => NULL, 'details' => $user.':'.$pw]);
 });
 
 //Censé authoriser les requetes OPTIONS
