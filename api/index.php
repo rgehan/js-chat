@@ -15,7 +15,7 @@ $dotenv->load();
 $pdo = new PDO("mysql:host=" . getenv('DB_HOST') . ";dbname=" . getenv('DB_NAME'), getenv('DB_USER'), getenv('DB_PASS'));
 
 header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization");
+header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, X-Auth-Token");
 header("Access-Control-Allow-Methods: DELETE, GET, HEAD, POST, PUT, OPTIONS, TRACE");
 
 /* 
@@ -30,12 +30,13 @@ $auth = new Auth($pdo);
 
 //Middleware d'authentification
 $authFunction = function(Request $request, Application $app) use ($pdo, $auth){
-
+	
 	//Pas de jeton ?
-	if(!$request->cookies->has('auth_token'))
+	if(!$request->headers->has('x-auth-token'))
 		return new Response("Unauthorized (no token)", 401);
 
-	$token = $request->cookies->get('auth_token');
+
+	$token = explode(' ', $request->headers->get('x-auth-token'))[1];
 	$authData = $auth->checkToken($token);
 
 	//Invalid token

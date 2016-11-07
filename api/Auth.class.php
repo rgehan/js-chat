@@ -51,7 +51,7 @@ class Auth
 	public function saveUser($user, $pass)
 	{
 		$salt = uniqid(mt_rand(), true);
-		$hash = hash('sha256', $salt . $pw);
+		$hash = hash('sha256', $salt . $pass);
 
 		$query = $this->pdo->prepare("INSERT INTO users (uid, pseudo, password, salt) VALUES (NULL, :pseudo, :pass, :salt);");
 		$ret = $query->execute(['pseudo' => $user, 'pass' => $hash, 'salt' => $salt]);
