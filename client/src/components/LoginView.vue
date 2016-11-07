@@ -35,9 +35,15 @@ var app = {
   },
   methods: {
   	doLogin(){
-  		auth.login(this.user, this.pass);
-  		//console.log(auth);
-  		this.$router.push('/');
+  		auth.login(this.user, this.pass)
+  		  .then((response) => {
+          if(response)
+            this.$router.push('/');
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+  		
   	},
   }
 };
