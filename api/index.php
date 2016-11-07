@@ -134,13 +134,10 @@ $app->post('/login', function(Request $request) use ($pdo){
 
 		$row = $query->fetch(PDO::FETCH_ASSOC);
 
-		if(!$row)
-			return json_encode([]);
-		else
-			return json_encode(['uid' => $row['uid']]);
+		return json_encode(['status' => 'ok', 'uid' => $row['uid']]);
 	}
 
-	return json_encode([]);
+	return json_encode(['status' => 'login_fail', 'uid' => NULL]);
 });
 
 //Censé authoriser les requetes OPTIONS
