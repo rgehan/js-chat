@@ -30,8 +30,12 @@ $auth = new Auth($pdo);
 
 //Middleware d'authentification
 $authFunction = function(Request $request, Application $app) use ($pdo, $auth){
-	$token = $request->cookies->get('auth_token');
 
+	//Pas de jeton ?
+	if(!$request->cookies->has('auth_token'))
+		return new Response("Unauthorized (no token)", 401);
+
+	$token = $request->cookies->get('auth_token');
 	$authData = $auth->checkToken($token);
 
 	//Invalid token
