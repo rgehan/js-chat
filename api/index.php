@@ -119,6 +119,17 @@ $app->post('/login', function(Request $request) use ($pdo, $auth){
 });
 
 
+//Recupere des infos sur l'utilisateur connecté
+$app->get('/userinfo', function(Request $request) use ($pdo){
+	$uid = $request->attributes->get('userData')['uid'];
+
+	$query = $pdo->prepare("SELECT uid, pseudo FROM users WHERE uid = :uid");
+	$query->execute(['uid' => $uid]);
+
+	return new Response(json_encode($query->fetch(PDO::FETCH_ASSOC)), 200);
+})
+->before($authFunction);
+
 
 //Censé authoriser les requetes OPTIONS
 $app->match("{url}", function($url) use ($app){
