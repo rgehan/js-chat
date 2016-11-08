@@ -160,7 +160,8 @@ $app->get('/conversations', function(Request $request) use ($pdo){
 							ON a.id = b.id
 							WHERE a.conv_id IN (SELECT conv_id FROM messages
 												WHERE uid = :uid
-												GROUP BY conv_id)");
+												GROUP BY conv_id)
+							ORDER BY lastDate DESC");
 	$query->execute(['uid' => $uid]);
 
 	return new Response(json_encode($query->fetchAll(PDO::FETCH_ASSOC)), 200);
