@@ -50,8 +50,17 @@ $authFunction = function(Request $request, Application $app) use ($pdo, $auth){
 
 
 //Recuperation des messages
-$app->get('/messages', function() use ($pdo) {
-	$query = $pdo->query("SELECT m.uid, m.message, u.pseudo FROM messages m INNER JOIN users u ON u.uid = m.uid ORDER BY m.id ASC");
+$app->get('/messages', function(Request $request) use ($pdo) {
+	$convId = $request->get('convId');
+
+	$query = $pdo->prepare("SELECT m.uid, m.message, u.pseudo 
+							FROM messages m 
+							INNER JOIN users u 
+						  		ON u.uid = m.uid
+							WHERE m.conv_id = :convId
+							ORDER BY m.id ASC");
+	$query->execute(['convId' => $convId]);
+
 	$data = $query->fetchAll(PDO::FETCH_ASSOC);
 
 	return json_encode($data);
