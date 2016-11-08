@@ -54,7 +54,7 @@
         },
         methods: {
             update(){
-                MessageStore.loadAll()
+                MessageStore.loadAll(this.convId)
                 .then(messages => {
                     this.messages = messages;
                 })

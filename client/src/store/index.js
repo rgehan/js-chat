@@ -33,7 +33,7 @@ store.loadConversation = () => {
 	});
 };
 
-store.loadAll = () => {
+store.loadAll = (convId) => {
 	return new Promise((resolve, reject) => {
 		let options = {
 			method: 'GET',
@@ -41,7 +41,7 @@ store.loadAll = () => {
 			headers: store.getAuthHeaders(),
 		};
 
-		fetch('http://api.chat-js.local:8888/messages', options)
+		fetch(`http://api.chat-js.local:8888/messages?convId=${convId}`, options)
 			.then(response => response.json())
 			.then(data => resolve(data))
 			.catch(err => reject(err));
