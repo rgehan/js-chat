@@ -48,13 +48,13 @@ store.loadAll = (convId) => {
 	});
 };
 
-store.send = (message, uid, success, error) => {
+store.send = (message, uid, convId, success, error) => {
 	return new Promise((resolve, reject) => {
 		let options = {
 			method: 'POST',
 			mode: 'cors',
 			headers: store.getAuthHeaders(),
-			body: `message=${encodeURI(message)}`,
+			body: `message=${encodeURI(message)}&convId=${convId}`,
 		};
 
 		options.headers.append('Content-Type', 'application/x-www-form-urlencoded');

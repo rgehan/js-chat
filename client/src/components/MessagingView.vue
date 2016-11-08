@@ -68,7 +68,7 @@
                 });
             },
             sendMessage: function() {
-                MessageStore.send(this.messageInput, this.uid)
+                MessageStore.send(this.messageInput, this.uid, this.convId)
                 .then(response => {
                     this.update();
                 })
