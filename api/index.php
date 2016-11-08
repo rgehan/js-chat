@@ -72,6 +72,7 @@ $app->get('/messages', function(Request $request) use ($pdo) {
 //Ajout d'un message
 $app->post('/messages', function(Request $request) use ($pdo, $auth) {
 	$message = $request->get('message');
+	$convId = $request->get('convId');
 
 	if($message == NULL)
 		return new Response('Bad parameters', 500);
@@ -79,8 +80,8 @@ $app->post('/messages', function(Request $request) use ($pdo, $auth) {
 	$uid = $request->attributes->get('userData')['uid'];
 
 	//insertion du message
-	$query = $pdo->prepare("INSERT INTO messages (id, uid, message) VALUES (NULL, :uid, :msg);");
-	$ret = $query->execute(['uid' => $uid, 'msg' => $message]);
+	$query = $pdo->prepare("INSERT INTO messages (id, uid, message, conv_id, date_added) VALUES (NULL, :uid, :msg, :conv, NOW());");
+	$ret = $query->execute(['uid' => $uid, 'msg' => $message, 'conv' => $convId]);
 
 	if($ret)
 		return new Response('Message posted.', 201);
