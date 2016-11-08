@@ -3,9 +3,12 @@
     .ui.four.wide.column
         .my-sidebar
             .my-sidebar-headers
-                span.chat-title Conversations
+                span.sidebar-title Conversations
             .my-sidebar-container
-                conversation(v-for='conv in conversations' v-bind:conv='conv' v-bind:class="{'current-conv': isThisConvCurrent(conv)}")
+                conversation(v-for='conv in conversations'
+                             v-bind:conv='conv'
+                             v-bind:class="{'current-conv': isThisConvCurrent(conv)}"
+                             v-on:selectConvRequested="selectConvRequested")
     .ui.twelve.wide.column
         .chat-content
             .chat-headers(@click='update')
@@ -32,6 +35,7 @@
             return {
                 messages: [],
                 conversations: [],
+                convId: 0,
                 messageInput: '',
             }
         },
@@ -57,6 +61,11 @@
                 .then(() => {
                     this.scrollDown();
                 });
+
+                MessageStore.loadConversation()
+                .then(conversations => {
+                    this.conversations = conversations;
+                });
             },
             sendMessage: function() {
                 MessageStore.send(this.messageInput, this.uid)
@@ -68,6 +77,10 @@
                 });
 
                 this.messageInput = '';
+            },
+            selectConvRequested: function(id) {
+                this.convId = id;
+                this.update();
             },
             scrollDown: () => {
                 var elem = document.getElementById("chat-body");
@@ -112,7 +125,13 @@
         &:focus
             outline none
 
-    //Makes all background white
+
+    .chat-headers, .chat-container, .my-sidebar-headers
+            width 100%
+            padding 8px 0px
+            box-sizing border-box
+
+
     .message-panel
         border #D1D1D1
         color #463f43
@@ -124,11 +143,6 @@
             position fixed
             height 100%
             overflow hidden
-
-        .chat-headers, .chat-container
-            width 100%
-            padding 8px 0px
-            box-sizing border-box
     
         .chat-headers
             text-align center
@@ -145,5 +159,13 @@
                 height 700px
                 overflow scroll
                 overflow-x hidden
-    //*/
+                
+
+    .my-sidebar-headers
+        text-align center
+        border-bottom 1px solid #D1D1D1
+        
+        .sidebar-title
+            font-size 1.7em
+    
 </style>

@@ -18,6 +18,21 @@ store.getAuthHeaders = () => {
 	});
 };
 
+store.loadConversation = () => {
+	return new Promise((resolve, reject) => {
+		let options = {
+			method: 'GET',
+			mode: 'cors',
+			headers: store.getAuthHeaders(),
+		};
+
+		fetch('http://api.chat-js.local:8888/conversations', options)
+			.then(response => response.json())
+			.then(data => resolve(data))
+			.catch(err => reject(err));
+	});
+};
+
 store.loadAll = () => {
 	return new Promise((resolve, reject) => {
 		let options = {
@@ -27,14 +42,9 @@ store.loadAll = () => {
 		};
 
 		fetch('http://api.chat-js.local:8888/messages', options)
-			.then(function(response) {
-				response.json().then(function(messages) {
-					resolve(messages);
-				});
-			})
-			.catch(function(err) {
-				reject(err);
-			});
+			.then(response => response.json())
+			.then(data => resolve(data))
+			.catch(err => reject(err));
 	});
 };
 
